@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lễ Hội Mai An Tiêm - Ultimate Matrix Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,900;1,600&family=Montserrat:wght@400;500;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050208;
+            --blue-soft: #b829ff;
+            --blue-mint: #e2b2ff;
+            --milk-white: #f5f0ff;
+            --gold-light: #ffea9f;
+            --card-bg: rgba(15, 6, 25, 0.90);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; cursor: default; }
+        body { background: #000000; color: var(--milk-white); overflow: hidden; height: 100vh; width: 100vw; perspective: 1500px; user-select: none; }
+
+        #dna-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        #nature-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; pointer-events: none; }
+
+        .nature-bg {
+            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(184, 41, 255, 0.15), transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(138, 43, 226, 0.1), transparent 45%),
+                        radial-gradient(circle at 50% 50%, rgba(10, 4, 15, 0.98), #000000 75%);
+            z-index: 0; pointer-events: none;
+        }
+
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(4, 1, 8, 0.96); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            perspective: 1000px; transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #splash-screen.hidden { opacity: 0; pointer-events: none; }
+
+        .splash-card-3d {
+            width: 90vw; max-width: 950px; background: rgba(15, 6, 25, 0.85);
+            border: 2px solid #b829ff; border-radius: 24px; padding: 4vh 3vw;
+            box-shadow: 0 0 60px rgba(184, 41, 255, 0.35), inset 0 0 30px rgba(184, 41, 255, 0.2);
+            text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2.2vh;
+            transform-style: preserve-3d; transform: rotateX(0deg) rotateY(0deg);
+            transition: transform 0.15s cubic-bezier(0.1, 1, 0.3, 1); opacity: 0; animation: cardFadeIn 0.5s ease 0.3s forwards;
+        }
+
+        @keyframes cardFadeIn { to { opacity: 1; } }
+
+        .anim-element { opacity: 0; transform: translateY(30px) translateZ(50px); animation: fadeInUp3D 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.5s; }
+        .delay-5 { animation-delay: 2.2s; }
+
+        @keyframes fadeInUp3D { to { opacity: 1; transform: translateY(0) translateZ(50px); } }
+
+        .team-tag {
+            background: linear-gradient(90deg, #b829ff, #e2b2ff, #ffea9f); background-size: 200% auto;
+            color: #000; font-weight: 900; padding: 0.7vh 2.2vw; border-radius: 50px; font-size: clamp(0.95rem, 1.3vw, 1.3rem);
+            letter-spacing: 4px; text-transform: uppercase; box-shadow: 0 0 25px rgba(184, 41, 255, 0.9);
+            animation: shineGradient 3s linear infinite;
+        }
+        @keyframes shineGradient { to { background-position: 200% center; } }
+
+        .splash-title {
+            font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 3.8vw, 3.8rem); font-weight: 900;
+            color: var(--gold-light); text-shadow: 0 0 20px rgba(255, 234, 159, 0.5), 0 0 40px rgba(184, 41, 255, 0.4); 
+            line-height: 1.2; letter-spacing: 1px;
+            background: linear-gradient(180deg, #ffffff 20%, var(--gold-light) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-msg {
+            font-size: clamp(0.95rem, 1.2vw, 1.3rem); color: var(--blue-mint); font-style: italic; max-width: 800px; line-height: 1.6;
+            text-shadow: 0 0 10px rgba(226, 178, 255, 0.3); min-height: 3.5rem; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px;
+        }
+
+        .word-group { display: inline-flex; white-space: nowrap; }
+
+        .char-fly {
+            display: inline-block; opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease, text-shadow 0.3s ease;
+            animation: flyAndAssemble 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: calc(0.3s + var(--i) * 0.025s);
+        }
+
+        @keyframes flyAndAssemble {
+            0% { opacity: 0; transform: translate(var(--rand-x), var(--rand-y)) scale(3.5) rotate(calc(var(--rand-r) * 1deg)); filter: blur(18px); color: var(--gold-light); }
+            60% { opacity: 0.6; filter: blur(3px); }
+            100% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); filter: blur(0); color: var(--blue-mint); }
+        }
+
+        .agenda-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%; margin: 1vh 0; transform: translateZ(60px); }
+        .agenda-item {
+            background: rgba(184, 41, 255, 0.12); border: 1.5px solid rgba(184, 41, 255, 0.5);
+            border-radius: 12px; padding: 1.2vh 0.4vw; font-size: clamp(0.7rem, 0.85vw, 0.9rem); font-weight: 700;
+            color: var(--milk-white); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); opacity: 0;
+            animation: menuFlyIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: calc(1.4s + var(--m-delay) * 0.1s);
+        }
+
+        @keyframes menuFlyIn {
+            0% { opacity: 0; transform: translate(var(--mx), var(--my)) scale(0.4) rotate(15deg); filter: blur(10px); }
+            100% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); filter: blur(0); }
+        }
+
+        .agenda-item:hover { 
+            background: rgba(184, 41, 255, 0.35); border-color: var(--gold-light); color: var(--gold-light); 
+            transform: translateY(-6px) scale(1.08) translateZ(20px); box-shadow: 0 0 25px rgba(255, 234, 159, 0.7); 
+        }
+
+        .activate-btn {
+            background: linear-gradient(135deg, #b829ff, #6b11a8); color: var(--gold-light); border: 2px solid var(--gold-light);
+            padding: 1.8vh 4vw; font-size: clamp(1.05rem, 1.35vw, 1.4rem); font-weight: 800; border-radius: 50px; cursor: pointer; 
+            text-transform: uppercase; letter-spacing: 2.5px; box-shadow: 0 0 40px rgba(184, 41, 255, 0.8);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease; font-family: 'Playfair Display', serif; transform: translateZ(70px);
+        }
+        .activate-btn:hover { transform: translateZ(90px) scale(1.08); box-shadow: 0 0 70px rgba(255, 234, 159, 1); }
+
+        .progress-container { position: fixed; top: 0; left: 0; width: 100vw; height: 5px; background: rgba(255, 255, 255, 0.1); z-index: 100; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #b829ff, var(--milk-white), var(--gold-light)); box-shadow: 0 0 20px #b829ff; transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        .stage {
+            position: relative; width: 100vw; height: 100vh; z-index: 2;
+            display: flex; justify-content: center; align-items: center; perspective: 1200px;
+        }
+
+        .slide-card {
+            position: absolute; width: 86vw; height: 84vh; max-width: 1320px; max-height: 800px;
+            background: var(--card-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 2px solid #b829ff; border-radius: 24px; padding: 3vh 3vw;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95), inset 0 0 40px rgba(184, 41, 255, 0.25);
+            opacity: 0; visibility: hidden; pointer-events: none; transform-style: preserve-3d;
+            transform: translateZ(-900px) rotateX(25deg) scale(0.6);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s cubic-bezier(0.1, 1, 0.3, 1), visibility 0.8s;
+            display: flex; gap: 3vw; align-items: center; justify-content: space-between;
+        }
+
+        .slide-card.active { opacity: 1 !important; visibility: visible !important; pointer-events: all !important; }
+
+        .slide-card.hero-card {
+            justify-content: center; text-align: center; flex-direction: column; border-color: #b829ff;
+            background: linear-gradient(135deg, rgba(20, 8, 30, 0.95), rgba(5, 2, 10, 0.98));
+            box-shadow: 0 0 90px rgba(184, 41, 255, 0.45);
+        }
+
+        .text-side { flex: 1.1; z-index: 2; display: flex; flex-direction: column; justify-content: center; transform: translateZ(50px); }
+        .img-side { flex: 1.25; z-index: 2; transform: translateZ(60px); position: relative; display: flex; flex-direction: column; justify-content: center; gap: 1.2vh; }
+
+        .slide-card.active .badge { animation: badgeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+        .slide-card.active h2 { animation: titleZoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+        .slide-card.active h1.hero-title { animation: titleZoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+        .slide-card.active p.hero-sub { animation: textFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+        
+        .slide-card.active ul li:nth-child(1) { animation: listStagger 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+        .slide-card.active ul li:nth-child(2) { animation: listStagger 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+        .slide-card.active ul li:nth-child(3) { animation: listStagger 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
+        .slide-card.active ul li:nth-child(4) { animation: listStagger 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both; }
+
+        .slide-card.active .img-anim-location .img-box-wrapper:nth-child(1) { animation: locAnim1 1.0s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+        .slide-card.active .img-anim-location .img-box-wrapper:nth-child(2) { animation: locAnim2 1.0s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
+        @keyframes locAnim1 {
+            0% { opacity: 0; transform: translate(-80px, -50px) scale(0.4) rotate(-20deg); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(-10px) rotate(-6deg) scale(1); filter: blur(0); }
+        }
+        @keyframes locAnim2 {
+            0% { opacity: 0; transform: translate(80px, 50px) scale(0.4) rotate(20deg); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(12px) rotate(6deg) scale(1); filter: blur(0); }
+        }
+
+        .slide-card.active .img-anim-time .img-box-wrapper:nth-child(1) { animation: timeAnim1 1.0s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+        .slide-card.active .img-anim-time .img-box-wrapper:nth-child(2) { animation: timeAnim2 1.0s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+        .slide-card.active .img-anim-time .img-box-wrapper:nth-child(3) { animation: timeAnim3 1.0s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both; }
+        @keyframes timeAnim1 {
+            0% { opacity: 0; transform: translateY(-120px) rotate(-15deg) scale(0.5); }
+            100% { opacity: 1; transform: translateY(0) rotate(-3deg) scale(1); }
+        }
+        @keyframes timeAnim2 {
+            0% { opacity: 0; transform: translateY(-120px) rotate(15deg) scale(0.5); }
+            100% { opacity: 1; transform: translateY(0) rotate(3deg) scale(1); }
+        }
+        @keyframes timeAnim3 {
+            0% { opacity: 0; transform: translateY(100px) scale(0.6); filter: blur(12px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        .slide-card.active .img-anim-geo .img-box-wrapper:nth-child(1) { animation: geoAnim1 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+        .slide-card.active .img-anim-geo .img-box-wrapper:nth-child(2) { animation: geoAnim2 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
+        @keyframes geoAnim1 {
+            0% { opacity: 0; transform: translateX(150px) scale(0.7); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes geoAnim2 {
+            0% { opacity: 0; transform: translateX(-150px) scale(0.7); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        .slide-card.active .img-anim-space .img-box-wrapper:nth-child(1) { animation: spaceAnim1 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+        .slide-card.active .img-anim-space .img-box-wrapper:nth-child(2) { animation: spaceAnim2 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
+        .slide-card.active .img-anim-space .img-box-wrapper:nth-child(3) { animation: spaceAnim3 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both; }
+        @keyframes spaceAnim1 {
+            0% { opacity: 0; transform: rotateY(90deg) scale(0.5); }
+            100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+        }
+        @keyframes spaceAnim2 {
+            0% { opacity: 0; transform: rotateY(-90deg) scale(0.5); }
+            100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+        }
+        @keyframes spaceAnim3 {
+            0% { opacity: 0; transform: rotateX(90deg) scale(0.5); }
+            100% { opacity: 1; transform: rotateX(0deg) scale(1); }
+        }
+
+        .slide-card.active .img-anim-altitude .img-box-wrapper:nth-child(1) { animation: altAnim1 1.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s both; }
+        .slide-card.active .img-anim-altitude .img-box-wrapper:nth-child(2) { animation: altAnim2 1.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s both; }
+        @keyframes altAnim1 {
+            0% { opacity: 0; transform: scale(0.1) rotate(30deg); filter: blur(20px); }
+            100% { opacity: 1; transform: scale(1) rotate(-4deg); filter: blur(0); }
+        }
+        @keyframes altAnim2 {
+            0% { opacity: 0; transform: scale(0.1) rotate(-30deg); filter: blur(20px); }
+            100% { opacity: 1; transform: scale(1) rotate(4deg); filter: blur(0); }
+        }
+
+        .slide-card.active .img-anim-unique .img-box-wrapper:nth-child(1) { animation: uniqueAnim1 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+        .slide-card.active .img-anim-unique .img-box-wrapper:nth-child(2) { animation: uniqueAnim2 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+        .slide-card.active .img-anim-unique .img-box-wrapper:nth-child(3) { animation: uniqueAnim3 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+        @keyframes uniqueAnim1 {
+            0% { opacity: 0; transform: scale(0.5) rotate(90deg) translateY(-50px); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg) translateY(0); }
+        }
+        @keyframes uniqueAnim2 {
+            0% { opacity: 0; transform: scale(0.5) rotate(-90deg) translateY(50px); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg) translateY(0); }
+        }
+        @keyframes uniqueAnim3 {
+            0% { opacity: 0; transform: translateY(40px) scale(0.7); filter: blur(8px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes badgeSlideIn {
+            0% { opacity: 0; transform: translateY(-30px) scale(0.8); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0) scale(1) translateZ(30px); filter: blur(0); }
+        }
+
+        @keyframes titleZoomIn {
+            0% { opacity: 0; transform: scale(0.7) translateY(20px); filter: blur(12px); }
+            100% { opacity: 1; transform: scale(1) translateY(0) translateZ(60px); filter: blur(0); }
+        }
+
+        @keyframes textFadeUp {
+            0% { opacity: 0; transform: translateY(25px); filter: blur(8px); }
+            100% { opacity: 1; transform: translateY(0) translateZ(35px); filter: blur(0); }
+        }
+
+        @keyframes listStagger {
+            0% { opacity: 0; transform: translateX(-40px); filter: blur(8px); }
+            100% { opacity: 1; transform: translateX(0) translateZ(40px); filter: blur(0); }
+        }
+
+        .img-row-2 { display: flex; gap: 1.5vw; justify-content: center; width: 100%; }
+        .img-row-2 .img-box-wrapper { width: 48%; }
+
+        .img-grid-3 { display: flex; flex-direction: column; gap: 1vh; width: 100%; }
+        .img-grid-3 .row-top, .img-grid-3 .row-bot { display: flex; gap: 1.5vw; justify-content: center; width: 100%; }
+        .img-grid-3 .row-top .img-box-wrapper { width: 48%; }
+        .img-grid-3 .row-bot .img-box-wrapper { width: 75%; margin: 0 auto; }
+
+        .badge {
+            display: inline-block; font-size: clamp(0.7rem, 0.9vw, 0.9rem); font-weight: 700; padding: 0.5vh 1.2vw; border-radius: 8px;
+            text-transform: uppercase; letter-spacing: 0.15vw; background: rgba(184, 41, 255, 0.2);
+            border: 1.5px solid #b829ff; color: var(--blue-mint); margin-bottom: 1.2vh; width: fit-content; 
+            font-family: 'Playfair Display', serif; text-shadow: 0 0 12px rgba(184, 41, 255, 0.7);
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 3.8vw, 3.8rem); font-weight: 900;
+            color: var(--gold-light); text-transform: uppercase; text-shadow: 0 0 30px rgba(255, 234, 159, 0.6);
+            margin-bottom: 1.8vh; line-height: 1.2;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.1vw, 2.2rem); font-weight: 900;
+            text-transform: uppercase; line-height: 1.2; margin-bottom: 1.2vh; color: var(--gold-light); letter-spacing: 1px;
+            border-bottom: 2px solid rgba(184, 41, 255, 0.4); padding-bottom: 0.6vh;
+            text-shadow: 0 0 18px rgba(255, 234, 159, 0.5);
+        }
+
+        p.hero-sub { font-size: clamp(1rem, 1.3vw, 1.35rem); color: var(--blue-mint); font-weight: 400; font-style: italic; line-height: 1.5; }
+
+        ul { font-size: clamp(0.85rem, 1vw, 1.05rem); line-height: 1.6; list-style: none; color: var(--milk-white); }
+        li { position: relative; padding-left: 1.8vw; margin-bottom: 1vh; word-wrap: break-word; overflow-wrap: break-word; }
+        li::before { content: '🍉'; position: absolute; left: 0; font-size: 0.8rem; top: 0.1vh; filter: drop-shadow(0 0 5px #b829ff); }
+        li b { color: var(--gold-light); font-weight: 700; }
+
+        .img-frame {
+            width: 100%; height: 26vh; max-height: 220px; min-height: 150px;
+            border-radius: 12px; overflow: hidden; border: 2.5px solid #b829ff;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 30px rgba(184, 41, 255, 0.4);
+            background: #000; position: relative; display: flex; align-items: center; justify-content: center;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+        }
+        .img-grid-3 .row-bot .img-frame { height: 20vh; max-height: 170px; }
+
+        .img-frame:hover {
+            transform: scale(1.05) rotate(0deg) !important;
+            box-shadow: 0 0 50px rgba(255, 234, 159, 0.8);
+            border-color: var(--gold-light); z-index: 10;
+        }
+        .img-frame img { width: 100% !important; height: 100% !important; object-fit: cover !important; filter: saturate(1.2) contrast(1.05); display: block; }
+        
+        .caption { 
+            font-family: 'Dancing Script', cursive; font-size: clamp(0.85rem, 1.05vw, 1.15rem); color: var(--gold-light); margin-top: 0.4vh; display: block; 
+            text-shadow: 0 0 12px rgba(255, 234, 159, 0.8); width: 100%; text-align: center;
+        }
+
+        .slide-counter { position: fixed; top: 3vh; right: 3vw; z-index: 100; font-size: clamp(1.2rem, 1.6vw, 1.6rem); font-weight: 700; color: #b829ff; font-family: 'Playfair Display', serif; text-shadow: 0 0 10px rgba(184, 41, 255, 0.6); }
+        .slide-counter span { color: var(--gold-light); }
+
+        /* Style cho đoạn kết chữ bay */
+        .outro-msg {
+            font-size: clamp(1rem, 1.4vw, 1.45rem); color: var(--blue-mint); font-style: italic; max-width: 900px; line-height: 1.6;
+            text-shadow: 0 0 12px rgba(226, 178, 255, 0.4); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px;
+            margin-top: 1.5vh; transform: translateZ(40px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MÀN HÌNH CHÀO 3D -->
+    <div id="splash-screen">
+        <div class="splash-card-3d" id="splash-card">
+            <div class="anim-element delay-1">
+                <span class="team-tag">🍉 SLIDE • TỔ 1 🍉</span>
+            </div>
+            <h1 class="splash-title delay-2">❄️ LỄ HỘI MAI AN TIÊM ❄️</h1>
+            
+            <p class="welcome-msg" id="matrix-text"></p>
+            
+            <div class="agenda-grid" id="agenda-container">
+                <div class="agenda-item" style="--m-delay: 1;">1. Địa Điểm</div>
+                <div class="agenda-item" style="--m-delay: 2;">2. Thời Gian</div>
+                <div class="agenda-item" style="--m-delay: 3;">3. Vị Trí Địa Lý</div>
+                <div class="agenda-item" style="--m-delay: 4;">4. Không Gian</div>
+                <div class="agenda-item" style="--m-delay: 5;">5. Độ Cao</div>
+                <div class="agenda-item" style="--m-delay: 6;">6. Nét Độc Đáo</div>
+            </div>
+
+            <button class="activate-btn anim-element delay-5" id="activate-btn">🚀 BẮT ĐẦU 🚀</button>
+        </div>
+    </div>
+
+    <!-- 3 THẺ AUDIO CHO 3 BÀI NHẠC -->
+    <audio id="audio-1" src="121.mp3" preload="auto" loop></audio>
+    <audio id="audio-2" src="111.mp3" preload="auto" loop></audio>
+    <audio id="audio-3" src="SaveTik.mp3" preload="auto" loop></audio>
+
+    <div class="progress-container"><div class="progress-bar" id="progress"></div></div>
+    <div class="nature-bg"></div>
+
+    <canvas id="dna-canvas"></canvas>
+    <canvas id="nature-canvas"></canvas>
+
+    <div class="slide-counter"><span id="curr">01</span> / <span id="total">09</span></div>
+
+    <div class="stage" id="stage">
+
+        <!-- Slide 01 -->
+        <div class="slide-card hero-card active">
+            <h1 class="hero-title">🌟 LỜI MỞ ĐẦU 🌟</h1>
+            <p class="hero-sub" style="font-size: clamp(1.1rem, 1.5vw, 1.5rem); max-width: 800px; line-height: 1.6;">
+                Khám phá di sản truyền thuyết Lễ hội Mai An Tiêm tại vùng đất Nga Sơn, Thanh Hóa - Nơi tôn vinh tinh thần tự lực tự cường và ý chí vươn lên của người Việt cổ!
+            </p>
+            <div style="margin-top: 3vh; display: inline-block; padding: 1vh 2.5vw; background: rgba(184, 41, 255, 0.18); border: 1px solid var(--blue-soft); border-radius: 8px; transform: translateZ(40px);">
+                <span style="font-family: 'Playfair Display', serif; color: var(--gold-light); font-weight: 600; letter-spacing: 0.15vw; font-size: clamp(0.85rem, 1vw, 1.05rem);">[ DI CHUỘT ĐỂ TƯƠNG TÁC 3D ]</span>
+            </div>
+        </div>
+
+        <!-- Slide 02 -->
+        <div class="slide-card hero-card">
+            <h1 class="hero-title">🍉 LỄ HỘI MAI AN TIÊM 🍉</h1>
+            <p class="hero-sub">Hành trình tìm hiểu di tích lịch sử, danh thắng và giá trị văn hóa độc đáo</p>
+        </div>
+
+        <!-- Slide 03 -->
+        <div class="slide-card">
+            <div class="text-side">
+                <span class="badge">Nga Sơn • Di Tích Lịch Sử</span>
+                <h2>1. Địa Điểm Tổ Chức</h2>
+                <ul>
+                    <li><b>Đền thờ:</b> Đền thờ Đức Thánh Mai An Tiêm.</li>
+                    <li><b>Địa chỉ:</b> Xã Nga Phú, Huyện Nga Sơn, Tỉnh Thanh Hóa.</li>
+                    <li><b>Tầm vóc:</b> Di tích lịch sử văn hóa cấp Quốc gia, điểm đến tâm linh nổi tiếng của vùng đất xứ Thanh.</li>
+                    <li><b>Điểm nhấn:</b> Nơi ghi dấu tích truyền thuyết Khai phá đảo hoang và nguồn gốc quả Dưa Hấu đỏ.</li>
+                </ul>
+            </div>
+            <div class="img-side img-anim-location">
+                <div class="img-row-2">
+                    <div class="img-box-wrapper"><div class="img-frame"><img src="https://cly.1cdn.vn/2025/04/08/le_hoi_mai_an_tiem3(1).jpg" alt="Đền thờ Mai An Tiêm"></div><span class="caption">~ Khung cảnh Đền thờ Mai An Tiêm ~</span></div>
+                    <div class="img-box-wrapper"><div class="img-frame"><img src="https://photo-baomoi.bmcdn.me/w700_r1/2024_04_18_361_48873187/fb20f12b2c67c5399c76.jpg" alt="Nga Phú Nga Sơn"></div><span class="caption">~ Khu di tích tại xã Nga Phú ~</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 04 -->
+        <div class="slide-card">
+            <div class="text-side">
+                <span class="badge">Tháng Ba Âm Lịch • Ngày Hội Truyền Thống</span>
+                <h2>2. Thời Gian Lễ Hội</h2>
+                <ul>
+                    <li><b>Thời gian chính thức:</b> Diễn ra từ ngày 12 đến ngày 15 tháng 3 Âm lịch hàng năm.</li>
+                    <li><b>Chính hội:</b> Ngày 14 tháng 3 Âm lịch.</li>
+                    <li><b>Thời tiết:</b> Tiết trời xuân ấm áp, thuận lợi cho du khách thập phương trẩy hội dâng hương.</li>
+                    <li><b>Thời lượng:</b> 4 ngày liên tục với chuỗi các hoạt động nghi lễ truyền thống và hội hè sôi nổi.</li>
+                </ul>
+            </div>
+            <div class="img-side img-anim-time">
+                <div class="img-grid-3">
+                    <div class="row-top">
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://vnn.1cdn.vn/2022/04/11/uploads-2022-th-c3-a1ng-204-ng-c3-a0y_11-trung-mai-20-c3-81n-20ti-c3-aam-2.jpg"></div><span class="caption">~ Nghi lễ rước kiệu chính hội ~</span></div>
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://tse4.mm.bing.net/th/id/OIP.7LIsh2KEGM8YrBTSFeDiGQAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Dâng hương"></div><span class="caption">~ Đông đảo nhân dân dâng hương ~</span></div>
+                    </div>
+                    <div class="row-bot">
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://thiennhienmoitruong.vn/upload/images/btv/btv7/btv7.1/pxl-20240419-023539565-2-1-.jpg" alt="Hội diễn xướng"></div><span class="caption">~ Không khí ngày hội sôi nổi ~</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 05 -->
+        <div class="slide-card">
+            <div class="text-side">
+                <span class="badge">Đông Bắc Xứ Thanh • Cửa Biển Cổ</span>
+                <h2>3. Vị Trí Địa Lý</h2>
+                <ul>
+                    <li><b>Vị trí tọa lạc:</b> Nằm ở phía Đông Bắc huyện Nga Sơn, cách trung tâm TP. Thanh Hóa khoảng 45 km.</li>
+                    <li><b>Địa thế:</b> Tựa lưng vào dãy núi Châu Lộc (núi Mai An Tiêm), phía trước hướng ra vùng đồng bằng ven biển.</li>
+                    <li><b>Yếu tố lịch sử:</b> Dấu tích đảo hoang xưa kia nay đã liền dải với đất liền nhờ quá trình bồi đắp.</li>
+                    <li><b>Giao thông:</b> Thuận lợi kết nối với các tuyến đường liên tỉnh và các danh thắng lân cận.</li>
+                </ul>
+            </div>
+            <div class="img-side img-anim-geo">
+                <div class="img-row-2">
+                    <div class="img-box-wrapper"><div class="img-frame"><img src="https://thiennhienmoitruong.vn/upload/images/btv/btv7/btv7.1/fb-img-1713498772293-2-1-.jpg" alt="Toàn cảnh Nga Sơn"></div><span class="caption">~ Toàn cảnh vùng đất Nga Sơn ~</span></div>
+                    <div class="img-box-wrapper"><div class="img-frame"><img src="https://topthanhhoaaz.com/wp-content/uploads/2024/04/den-tho-mai-an-tiem_7.jpg" alt="Dãy núi Châu Lộc"></div><span class="caption">~ Dãy núi hùng vĩ ~</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 06 -->
+        <div class="slide-card">
+            <div class="text-side">
+                <span class="badge">Sơn Thủy Hữu Tình • Động & Biển</span>
+                <h2>4. Không Gian Xung Quanh</h2>
+                <ul>
+                    <li><b>Cảnh quan tự nhiên:</b> Bao bọc bởi xóm làng yên bình, ruộng đồng tươi tốt và các rặng núi đá vôi.</li>
+                    <li><b>Khung cảnh Động:</b> Gần kề hang động Mai An Tiêm - nơi lưu giữ dấu tích sinh sống của gia đình An Tiêm.</li>
+                    <li><b>Quần thể liên kết:</b> Gần danh thắng Động Từ Thức, Đền Phủ Tĩnh và bờ biển Nga Sơn.</li>
+                    <li><b>Bầu không khí:</b> Mang đậm chất thơ, khoáng đạt, giao hòa giữa núi rừng và hơi thở biển cả.</li>
+                </ul>
+            </div>
+            <div class="img-side img-anim-space">
+                <div class="img-grid-3">
+                    <div class="row-top">
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://thesinhtour.com/wp-content/uploads/2020/09/dong-am-tiem.jpeg" alt="Hang động An Tiêm"></div><span class="caption">~ Hang động Mai An Tiêm ~</span></div>
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://tse2.mm.bing.net/th/id/OIP.QzDW-HL9hiw4HHJDK4qNIAHaFj?r=0&pid=ImgDet&w=474&h=355&rs=1&o=7&rm=3" alt="Phong cảnh xung quanh đền"></div><span class="caption">~ Cảnh quan núi đá bọc quanh đền ~</span></div>
+                    </div>
+                    <div class="row-bot">
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://photo-baomoi.bmcdn.me/w700_r1/2024_04_18_361_48873187/36be3ab5e7f90ea757e8.jpg"></div><span class="caption">~ Cảnh sắc thiên nhiên xanh mát xung quanh ~</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 07 -->
+        <div class="slide-card">
+            <div class="text-side">
+                <span class="badge">Chân Núi Châu Lộc • Thế Đất Sơn Triều</span>
+                <h2>5. Độ Cao & Địa Thế</h2>
+                <ul>
+                    <li><b>Độ cao mặt đất:</b> Đền nằm ở độ cao khoảng 15m - 30m so với mực nước biển, ngay dưới chân núi.</li>
+                    <li><b>Độ cao đỉnh núi:</b> Núi Châu Lộc (núi An Tiêm) cao khoảng 150m - 200m so với mặt nước biển.</li>
+                    <li><b>Đường lên Động:</b> Để lên hang động An Tiêm phía trên đền, du khách trải qua hơn trăm bậc đá.</li>
+                    <li><b>Tầm nhìn:</b> Từ khu vực hang động ở độ cao lưng chừng núi có thể phóng tầm mắt bao quát toàn bộ vùng đồng bằng Nga Sơn.</li>
+                </ul>
+            </div>
+            <div class="img-side img-anim-altitude">
+                <div class="img-row-2">
+                    <div class="img-box-wrapper"><div class="img-frame"><img src="https://photo-baomoi.bmcdn.me/w700_r1/2026_04_25_361_55024927/36a7f572153afc64a52b.jpg" alt="Đường bậc đá lên núi"></div><span class="caption">~ Bậc đá dẫn lên lưng chừng núi ~</span></div>
+                    <div class="img-box-wrapper"><div class="img-frame"><img src="https://xebinhhoai.vn/storage/5p/67/5p67w7iz5knlr8g0miqdg7vgfg9c_v50dg2nh1itg8dhryji9nqc96rq3_3-2.jpg" alt="Tầm nhìn bao quát"></div><span class="caption">~ Nhìn toàn cảnh đền ~</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 08 -->
+        <div class="slide-card">
+            <div class="text-side">
+                <span class="badge">Sáng Tạo • Vui Nhộn & Bất Ngờ</span>
+                <h2>6. Nét Độc Đáo, Vui Nhộn</h2>
+                <ul>
+                    <li><b>Thi điêu khắc dưa hấu:</b> Màn tỉa tủa trái cây "siêu xe dưa hấu" cực kỳ hài hước và độc đáo từ các nghệ nhân làng xã.</li>
+                    <li><b>Trò chơi dân gian cười bể bụng:</b> Các cuộc thi bơi lội, kéo co và giả tiếng chim kêu, gà gáy siêu lầy lội.</li>
+                    <li><b>Check-in "vựa dưa" khổng lồ:</b> Cơ hội hóa thân thành "chàng Robinson đảo hoang" phiên bản Gen Z cực hài hước.</li>
+                    <li><b>Không khí hội hè:</b> Cười thả ga với các màn biểu diễn đậm chất cây nhà lá vườn tràn ngập tiếng cười.</li>
+                </ul>
+            </div>
+            <div class="img-side img-anim-unique">
+                <div class="img-grid-3">
+                    <div class="row-top">
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://thiennhienmoitruong.vn/upload/images/btv/btv7/btv7.1/pxl-20240419-023547119-2.jpg" alt="Khắc dưa hấu"></div><span class="caption">~ Tác phẩm dưa hấu "cười bể bụng" ~</span></div>
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://tse1.mm.bing.net/th/id/OIP.jISJvn0woWREUjEMcx8gzwHaE8?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Trò chơi vui nhộn"></div><span class="caption">~ Màn tranh tài cười thả ga ~</span></div>
+                    </div>
+                    <div class="row-bot">
+                        <div class="img-box-wrapper"><div class="img-frame"><img src="https://thuonghieuvaphapluat.vn/Images/maivanbinh/2026/04/25/IMG_5992.jpeg" alt="Không khí lễ hội"></div><span class="caption">~ Góc check-in "đảo hoang" cực lầy ~</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 09: Mục Số 9 (Đoạn Kết) - Hiệu ứng chữ bay lơ lửng lắp ráp -->
+        <div class="slide-card hero-card">
+            <h1 class="hero-title" style="font-size: clamp(2.1rem, 3.6vw, 3.5rem);">🍉 LỜI KẾT 🍉</h1>
+            <p class="outro-msg" id="outro-matrix-text"></p>
+        </div>
+
+    </div>
+
+    <script>
+        function setupMatrixText(elementId, textString, baseDelay = 0.3) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+            container.innerHTML = '';
+            
+            let charIndex = 0;
+            textString.split(' ').forEach(word => {
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'word-group';
+
+                word.split('').forEach(char => {
+                    const span = document.createElement('span');
+                    span.className = 'char-fly';
+                    span.innerText = char;
+                    
+                    const rx = (Math.random() - 0.5) * 1000;
+                    const ry = (Math.random() - 0.5) * 800;
+                    const rr = (Math.random() - 0.5) * 360;
+                    
+                    span.style.setProperty('--rand-x', `${rx}px`);
+                    span.style.setProperty('--rand-y', `${ry}px`);
+                    span.style.setProperty('--rand-r', rr);
+                    span.style.setProperty('--i', charIndex++);
+                    
+                    if(baseDelay !== 0.3) {
+                        span.style.animationDelay = `calc(${baseDelay}s + ${charIndex} * 0.025s)`;
+                    }
+
+                    wordSpan.appendChild(span);
+                });
+
+                container.appendChild(wordSpan);
+                
+                const spaceSpan = document.createElement('span');
+                spaceSpan.className = 'char-fly';
+                spaceSpan.innerHTML = '&nbsp;';
+                spaceSpan.style.setProperty('--rand-x', `${(Math.random() - 0.5) * 500}px`);
+                spaceSpan.style.setProperty('--rand-y', `${(Math.random() - 0.5) * 500}px`);
+                spaceSpan.style.setProperty('--rand-r', 0);
+                spaceSpan.style.setProperty('--i', charIndex++);
+                container.appendChild(spaceSpan);
+            });
+        }
+
+        const msgText = "Xin chào cô và các bạn! Tổ 1 hân hạnh giới thiệu hành trình khám phá Lễ hội Mai An Tiêm đầy thú vị và vui nhộn.";
+        setupMatrixText('matrix-text', msgText);
+
+        const outroText = "Đứng trước ngưỡng cửa 12, cứ cắm mặt mà cày, tự lực cánh sinh như Mai An Tiêm thì thể nào cũng hái quả ngọt! Tổ 1 chúc các bạn chuẩn bị vượt vũ môn đỗ đạt hết đi!";
+        setupMatrixText('outro-matrix-text', outroText);
+
+        document.querySelectorAll('.agenda-item').forEach((item, idx) => {
+            const mx = (Math.random() - 0.5) * 900;
+            const my = (Math.random() - 0.5) * 700 + (idx % 2 === 0 ? -300 : 300);
+            item.style.setProperty('--mx', `${mx}px`);
+            item.style.setProperty('--my', `${my}px`);
+        });
+
+        const splashScreen = document.getElementById('splash-screen');
+        const splashCard = document.getElementById('splash-card');
+        const activateBtn = document.getElementById('activate-btn');
+        
+        const audio1 = document.getElementById('audio-1');
+        const audio2 = document.getElementById('audio-2');
+        const audio3 = document.getElementById('audio-3');
+
+        let bgStarted = false; 
+        let autoSlideTimer = null; 
+        let mouseX = 0, mouseY = 0;
+        let activeAudio = null;
+
+        window.addEventListener('mousemove', e => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            const rx = (mouseY / window.innerHeight - 0.5) * -12;
+            const ry = (mouseX / window.innerWidth - 0.5) * 12;
+
+            if(!splashScreen.classList.contains('hidden')) {
+                splashCard.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+            } else {
+                const activeCard = document.querySelector('.slide-card.active');
+                if(activeCard) {
+                    activeCard.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+                }
+            }
+        });
+
+        const cards = document.querySelectorAll('.slide-card');
+        const progressBar = document.getElementById('progress');
+        let idx = 0;
+        document.getElementById('total').innerText = String(cards.length).padStart(2, '0');
+
+        activateBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            splashScreen.classList.add('hidden');
+            if (!bgStarted) {
+                audio1.volume = 0.7;
+                audio1.play().then(() => {
+                    bgStarted = true;
+                    activeAudio = audio1;
+                }).catch(err => console.log(err));
+            }
+            updateCard(0);
+        });
+
+        // Đã tăng maxSteps lên 60 và giảm khoảng thời gian mỗi bước xuống 30ms (tổng thời gian crossfade ~1.8 giây) giúp chuyển bài cực kỳ mịn và êm
+        function switchTrack(newAudio) {
+            if (activeAudio === newAudio) return;
+            
+            let oldAudio = activeAudio;
+            activeAudio = newAudio;
+
+            newAudio.volume = 0;
+            newAudio.currentTime = 0;
+            newAudio.play().catch(e => console.log(e));
+
+            let step = 0;
+            let maxSteps = 60; 
+            let interval = setInterval(() => {
+                step++;
+                let progress = step / maxSteps;
+
+                if (newAudio.volume < 0.8) {
+                    newAudio.volume = Math.min(0.8, progress * 0.8);
+                }
+
+                if (oldAudio && !oldAudio.paused) {
+                    oldAudio.volume = Math.max(0, 0.7 * (1 - progress));
+                }
+
+                if (step >= maxSteps) {
+                    clearInterval(interval);
+                    if (oldAudio && oldAudio !== newAudio) {
+                        oldAudio.pause();
+                        oldAudio.currentTime = 0;
+                        oldAudio.volume = 0.7;
+                    }
+                }
+            }, 30);
+        }
+
+        function updateCard(n) {
+            cards.forEach(c => {
+                c.classList.remove('active');
+                c.style.transform = '';
+            });
+            
+            idx = (n + cards.length) % cards.length;
+            cards[idx].classList.add('active');
+            
+            const rx = (mouseY / window.innerHeight - 0.5) * -12;
+            const ry = (mouseX / window.innerWidth - 0.5) * 12;
+            cards[idx].style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+
+            document.getElementById('curr').innerText = String(idx + 1).padStart(2, '0');
+            progressBar.style.width = `${((idx + 1) / cards.length) * 100}%`;
+
+            if (idx === 8) {
+                switchTrack(audio3);
+                setupMatrixText('outro-matrix-text', outroText);
+            } else if (idx >= 2) {
+                switchTrack(audio2);
+            } else {
+                if (bgStarted) switchTrack(audio1);
+            }
+
+            startAutoSlideTimer();
+        }
+
+        function nextSlide() { 
+            updateCard(idx + 1); 
+        }
+
+        function prevSlide() { 
+            updateCard(idx - 1); 
+        }
+
+        function startAutoSlideTimer() {
+            if (autoSlideTimer) clearTimeout(autoSlideTimer);
+
+            if (idx < cards.length - 1) {
+                const randomTime = Math.floor(Math.random() * (5600 - 4000 + 1)) + 5000;
+                autoSlideTimer = setTimeout(() => {
+                    nextSlide();
+                }, randomTime);
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            if(!splashScreen.classList.contains('hidden')) return;
+            nextSlide();
+        });
+
+        let touchStartX = 0;
+        window.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        window.addEventListener('touchend', e => {
+            if(!splashScreen.classList.contains('hidden')) return;
+            let touchEndX = e.changedTouches[0].screenX;
+            if (touchEndX < touchStartX - 40) {
+                nextSlide();
+            } else if (touchEndX > touchStartX + 40) {
+                prevSlide();
+            }
+        }, {passive: true});
+
+        window.addEventListener('keydown', e => {
+            if(!splashScreen.classList.contains('hidden')) return;
+            if(e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            if(e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        });
+
+        const dnaCanvas = document.getElementById('dna-canvas');
+        const dnaCtx = dnaCanvas.getContext('2d');
+        let dw = dnaCanvas.width = window.innerWidth;
+        let dh = dnaCanvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            dw = dnaCanvas.width = window.innerWidth;
+            dh = dnaCanvas.height = window.innerHeight;
+        });
+
+        class Floating3DHelix {
+            constructor() {
+                this.x = Math.random() * dw;
+                this.y = Math.random() * dh;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.height = Math.random() * 120 + 100;
+                this.radius = Math.random() * 15 + 12;
+                this.speed = (Math.random() - 0.5) * 0.02;
+                this.angle = Math.random() * Math.PI * 2;
+                this.tilt = (Math.random() - 0.5) * 0.5;
+            }
+            update() {
+                this.angle += this.speed;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if(this.x < -100) this.x = dw + 100;
+                if(this.x > dw + 100) this.x = -100;
+                if(this.y < -150) this.y = dh + 150;
+                if(this.y > dh + 150) this.y = -150;
+            }
+            draw() {
+                dnaCtx.save();
+                dnaCtx.translate(this.x, this.y);
+                dnaCtx.rotate(this.tilt);
+
+                let steps = 25;
+                let stepHeight = this.height / steps;
+                let startY = -this.height / 2;
+
+                for (let i = 0; i < steps; i++) {
+                    let currentAngle = this.angle + i * 0.25;
+                    let z1 = Math.cos(currentAngle);
+                    let z2 = Math.cos(currentAngle + Math.PI);
+
+                    let x1 = Math.sin(currentAngle) * this.radius;
+                    let y1 = startY + i * stepHeight;
+                    let x2 = Math.sin(currentAngle + Math.PI) * this.radius;
+                    let y2 = y1;
+
+                    let size1 = (z1 + 1.8) * 1.8;
+                    let size2 = (z2 + 1.8) * 1.8;
+
+                    if (i % 2 === 0) {
+                        let alpha = ((z1 + z2) / 2 + 1) / 2 * 0.35 + 0.1;
+                        dnaCtx.strokeStyle = `rgba(138, 203, 254, ${alpha})`;
+                        dnaCtx.lineWidth = 1.2;
+                        dnaCtx.beginPath();
+                        dnaCtx.moveTo(x1, y1);
+                        dnaCtx.lineTo(x2, y2);
+                        dnaCtx.stroke();
+                    }
+
+                    dnaCtx.fillStyle = '#8acbfe';
+                    dnaCtx.shadowColor = '#8acbfe';
+                    dnaCtx.shadowBlur = 8;
+                    dnaCtx.globalAlpha = (z1 + 1.6) / 2.6 * 0.8 + 0.2;
+                    dnaCtx.beginPath();
+                    dnaCtx.arc(x1, y1, size1, 0, Math.PI * 2);
+                    dnaCtx.fill();
+
+                    dnaCtx.fillStyle = '#f0f7ff';
+                    dnaCtx.shadowColor = '#f0f7ff';
+                    dnaCtx.shadowBlur = 8;
+                    dnaCtx.globalAlpha = (z2 + 1.6) / 2.6 * 0.8 + 0.2;
+                    dnaCtx.beginPath();
+                    dnaCtx.arc(x2, y2, size2, 0, Math.PI * 2);
+                    dnaCtx.fill();
+                }
+                dnaCtx.restore();
+            }
+        }
+
+        class AtomicModel {
+            constructor() {
+                this.x = Math.random() * dw;
+                this.y = Math.random() * dh;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.radiusX = Math.random() * 30 + 35;
+                this.radiusY = Math.random() * 15 + 15;
+                this.angle1 = Math.random() * Math.PI * 2;
+                this.angle2 = Math.random() * Math.PI * 2;
+                this.angle3 = Math.random() * Math.PI * 2;
+                this.speed1 = (Math.random() * 0.04 + 0.02);
+                this.speed2 = (Math.random() * 0.04 + 0.02) * -1;
+                this.speed3 = (Math.random() * 0.05 + 0.03);
+                this.tilt = Math.random() * Math.PI;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.angle1 += this.speed1;
+                this.angle2 += this.speed2;
+                this.angle3 += this.speed3;
+
+                if(this.x < -100) this.x = dw + 100;
+                if(this.x > dw + 100) this.x = -100;
+                if(this.y < -100) this.y = dh + 100;
+                if(this.y > dh + 100) this.y = -100;
+            }
+            draw() {
+                dnaCtx.save();
+                dnaCtx.translate(this.x, this.y);
+
+                dnaCtx.fillStyle = '#ffea9f';
+                dnaCtx.shadowColor = '#ffea9f';
+                dnaCtx.shadowBlur = 15;
+                dnaCtx.beginPath();
+                dnaCtx.arc(0, 0, 5, 0, Math.PI * 2);
+                dnaCtx.fill();
+
+                dnaCtx.strokeStyle = 'rgba(138, 203, 254, 0.25)';
+                dnaCtx.lineWidth = 1;
+                dnaCtx.shadowBlur = 0;
+
+                dnaCtx.save();
+                dnaCtx.rotate(this.tilt);
+                dnaCtx.beginPath();
+                dnaCtx.ellipse(0, 0, this.radiusX, this.radiusY, 0, 0, Math.PI * 2);
+                dnaCtx.stroke();
+                
+                let ex1 = Math.cos(this.angle1) * this.radiusX;
+                let ey1 = Math.sin(this.angle1) * this.radiusY;
+                dnaCtx.fillStyle = '#ffffff';
+                dnaCtx.shadowColor = '#8acbfe';
+                dnaCtx.shadowBlur = 10;
+                dnaCtx.beginPath();
+                dnaCtx.arc(ex1, ey1, 3, 0, Math.PI * 2);
+                dnaCtx.fill();
+                dnaCtx.restore();
+
+                dnaCtx.save();
+                dnaCtx.rotate(this.tilt + Math.PI / 3);
+                dnaCtx.beginPath();
+                dnaCtx.ellipse(0, 0, this.radiusX, this.radiusY, 0, 0, Math.PI * 2);
+                dnaCtx.stroke();
+
+                let ex2 = Math.cos(this.angle2) * this.radiusX;
+                let ey2 = Math.sin(this.angle2) * this.radiusY;
+                dnaCtx.fillStyle = '#ffea9f';
+                dnaCtx.shadowColor = '#ffea9f';
+                dnaCtx.shadowBlur = 10;
+                dnaCtx.beginPath();
+                dnaCtx.arc(ex2, ey2, 3, 0, Math.PI * 2);
+                dnaCtx.fill();
+                dnaCtx.restore();
+
+                dnaCtx.save();
+                dnaCtx.rotate(this.tilt - Math.PI / 3);
+                dnaCtx.beginPath();
+                dnaCtx.ellipse(0, 0, this.radiusX, this.radiusY, 0, 0, Math.PI * 2);
+                dnaCtx.stroke();
+
+                let ex3 = Math.cos(this.angle3) * this.radiusX;
+                let ey3 = Math.sin(this.angle3) * this.radiusY;
+                dnaCtx.fillStyle = '#8acbfe';
+                dnaCtx.shadowColor = '#8acbfe';
+                dnaCtx.shadowBlur = 10;
+                dnaCtx.beginPath();
+                dnaCtx.arc(ex3, ey3, 3, 0, Math.PI * 2);
+                dnaCtx.fill();
+                dnaCtx.restore();
+
+                dnaCtx.restore();
+            }
+        }
+
+        let dnaHelices = Array.from({length: 5}, () => new Floating3DHelix());
+        let atoms = Array.from({length: 6}, () => new AtomicModel());
+
+        const canvas = document.getElementById('nature-canvas');
+        const ctx = canvas.getContext('2d');
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        });
+
+        let mouse = { x: w / 2, y: h / 2, isMoving: false };
+        let moveTimer = null;
+
+        window.addEventListener('mousemove', e => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            mouse.isMoving = true;
+
+            clearTimeout(moveTimer);
+            moveTimer = setTimeout(() => {
+                mouse.isMoving = false;
+            }, 60);
+        });
+
+        const PARTICLE_COUNT = 500;
+        let particles = [];
+
+        for(let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: (Math.random() - 0.5) * 0.6,
+                size: Math.random() * 1.8 + 0.6,
+                color: Math.random() > 0.4 ? '#8acbfe' : (Math.random() > 0.5 ? '#f0f7ff' : '#ffea9f'),
+                alpha: Math.random() * 0.8 + 0.2,
+                pulse: Math.random() * 0.02 + 0.005
+            });
+        }
+
+        const benzeneStructures = [
+            { subs: ['CH₃'], vertices: [0] },
+            { subs: ['Br'], vertices: [1] },
+            { subs: ['OH', 'CH₃'], vertices: [0, 3] },
+            { subs: ['NO₂'], vertices: [2] },
+            { subs: ['Cl', 'Cl'], vertices: [1, 4] },
+            { subs: ['COOH'], vertices: [5] },
+            { subs: ['NH₂', 'CH₂', 'Br'], vertices: [0, 2, 4] },
+            { subs: ['CH=CH₂'], vertices: [3] },
+            { subs: ['OH', 'NO₂', 'CH₃'], vertices: [0, 2, 4] },
+            { subs: ['SO₃H'], vertices: [1] }
+        ];
+
+        class PerfectCleanBenzene {
+            constructor(struct) {
+                this.x = Math.random() * w;
+                this.y = Math.random() * h;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.size = Math.random() * 18 + 16;
+                this.angle = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.007;
+                this.subs = struct.subs;
+                this.vertices = struct.vertices;
+                this.color = Math.random() > 0.5 ? 'rgba(138, 203, 254, 0.85)' : 'rgba(240, 247, 255, 0.9)';
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.angle += this.rotSpeed;
+
+                if(this.x < -80) this.x = w + 80;
+                if(this.x > w + 80) this.x = -80;
+                if(this.y < -80) this.y = h + 80;
+                if(this.y > h + 80) this.y = -80;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 1.8;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 8;
+
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    let a = (i * Math.PI) / 3 - Math.PI / 6;
+                    let hx = Math.cos(a) * this.size;
+                    let hy = Math.sin(a) * this.size;
+                    if (i === 0) ctx.moveTo(hx, hy);
+                    else ctx.lineTo(hx, hy);
+                }
+                ctx.closePath();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size * 0.45, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = this.color;
+                ctx.font = 'bold 10px Montserrat, sans-serif';
+                
+                for (let i = 0; i < this.subs.length; i++) {
+                    let vIdx = this.vertices[i];
+                    let a = (vIdx * Math.PI) / 3 - Math.PI / 6;
+                    
+                    let x1 = Math.cos(a) * this.size;
+                    let y1 = Math.sin(a) * this.size;
+                    let x2 = Math.cos(a) * (this.size + 14);
+                    let y2 = Math.sin(a) * (this.size + 14);
+
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+
+                    ctx.save();
+                    ctx.translate(x2, y2);
+                    
+                    if (Math.cos(a) > 0.2) {
+                        ctx.textAlign = 'left';
+                    } else if (Math.cos(a) < -0.2) {
+                        ctx.textAlign = 'right';
+                    } else {
+                        ctx.textAlign = 'center';
+                    }
+                    ctx.textBaseline = 'middle';
+
+                    ctx.fillText(this.subs[i], Math.cos(a) > 0.2 ? 4 : (Math.cos(a) < -0.2 ? -4 : 0), Math.sin(a) > 0.2 ? 4 : (Math.sin(a) < -0.2 ? -4 : 0));
+                    ctx.restore();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        class ErlenmeyerFlask {
+            constructor() {
+                this.x = Math.random() * w;
+                this.y = Math.random() * h;
+                this.vx = (Math.random() - 0.5) * 0.35;
+                this.vy = (Math.random() - 0.5) * 0.35;
+                this.scale = Math.random() * 0.35 + 0.45;
+                this.angle = (Math.random() - 0.5) * 0.3;
+                this.rotSpeed = (Math.random() - 0.5) * 0.004;
+                this.bubbleTimer = 0;
+                this.color = Math.random() > 0.5 ? 'rgba(138, 203, 254, 0.85)' : 'rgba(240, 247, 255, 0.85)';
+                this.liquidColor = Math.random() > 0.5 ? 'rgba(138, 203, 254, 0.35)' : 'rgba(255, 234, 159, 0.35)';
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.angle += this.rotSpeed;
+                this.bubbleTimer += 0.05;
+
+                if(this.x < -100) this.x = w + 100;
+                if(this.x > w + 100) this.x = -100;
+                if(this.y < -100) this.y = h + 100;
+                if(this.y > h + 100) this.y = -100;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.scale(this.scale, this.scale);
+
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 2;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
+
+                ctx.beginPath();
+                ctx.moveTo(-12, -40);
+                ctx.lineTo(12, -40);
+                ctx.lineTo(12, -22);
+                ctx.lineTo(38, 32);
+                ctx.quadraticCurveTo(0, 38, -38, 32);
+                ctx.lineTo(-12, -22);
+                ctx.closePath();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.ellipse(0, -40, 14, 4, 0, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = this.liquidColor;
+                ctx.beginPath();
+                ctx.moveTo(-28, 12);
+                ctx.quadraticCurveTo(0, 12 + Math.sin(this.bubbleTimer) * 3, 28, 12);
+                ctx.lineTo(36, 30);
+                ctx.quadraticCurveTo(0, 36, -36, 30);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                let b1Y = 22 - ((this.bubbleTimer * 12) % 24);
+                let b2Y = 25 - (((this.bubbleTimer + 1.5) * 10) % 22);
+
+                ctx.beginPath();
+                ctx.arc(-8, b1Y, 2.5, 0, Math.PI * 2);
+                ctx.arc(10, b2Y, 1.8, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        let benzenes = benzeneStructures.map(struct => new PerfectCleanBenzene(struct));
+        let flasks = Array.from({length: 4}, () => new ErlenmeyerFlask());
+
+        function renderAll() {
+            dnaCtx.clearRect(0, 0, dw, dh);
+            dnaHelices.forEach(d => {
+                d.update();
+                d.draw();
+            });
+            atoms.forEach(a => {
+                a.update();
+                a.draw();
+            });
+
+            ctx.clearRect(0, 0, w, h);
+            
+            for(let i = 0; i < PARTICLE_COUNT; i++) {
+                let p = particles[i];
+
+                if (mouse.isMoving) {
+                    let dx = mouse.x - p.x;
+                    let dy = mouse.y - p.y;
+                    let distSq = dx * dx + dy * dy;
+
+                    if(distSq < 50000) {
+                        let force = 0.0012;
+                        p.vx += dx * force;
+                        p.vy += dy * force;
+                    }
+                }
+
+                p.vx += (Math.random() - 0.5) * 0.05;
+                p.vy += (Math.random() - 0.5) * 0.05;
+
+                let maxSpeed = 2.5;
+                let speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                if(speed > maxSpeed) {
+                    p.vx = (p.vx / speed) * maxSpeed;
+                    p.vy = (p.vy / speed) * maxSpeed;
+                }
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                p.alpha += p.pulse;
+                let currentAlpha = Math.abs(Math.sin(p.alpha)) * 0.8 + 0.2;
+
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = currentAlpha;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+
+                if(p.x < 0) p.x = w;
+                if(p.x > w) p.x = 0;
+                if(p.y < 0) p.y = h;
+                if(p.y > h) p.y = 0;
+            }
+
+            benzenes.forEach(b => {
+                b.update();
+                b.draw();
+            });
+
+            flasks.forEach(f => {
+                f.update();
+                f.draw();
+            });
+
+            requestAnimationFrame(renderAll);
+        }
+        renderAll();
+    </script>
+</body>
+</html>
